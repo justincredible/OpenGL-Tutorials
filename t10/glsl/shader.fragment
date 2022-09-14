@@ -1,0 +1,34 @@
+#version 330 core
+
+in vec2 tex;
+in vec3 normal;
+in vec3 eyedir;
+in vec3 lightdir;
+in float distance;
+
+out vec4 color;
+
+uniform sampler2D sample;
+
+void main()
+{
+	vec3 LightColor = vec3(1,1,1);
+	float LightPower = 50.0f;
+	
+	vec3 MaterialDiffuseColor = texture( sample, tex ).rgb;
+	vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+	vec3 MaterialSpecularColor = vec3(0.3,0.3,0.3);
+	
+	vec3 n = normalize( normal );
+	vec3 l = normalize( lightdir );
+	float cosTheta = clamp( dot( n,l ), 0, 1 );
+	vec3 E = normalize(eyedir);
+	vec3 R = reflect(-l,n);
+	float cosAlpha = clamp( dot( E,R ), 0, 1 );
+	
+	color.rgb = MaterialAmbientColor +
+		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
+		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
+		
+	color.a = 0.3;
+}

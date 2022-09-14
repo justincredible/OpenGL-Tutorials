@@ -1,0 +1,35 @@
+#version 330 core
+
+layout(location = 0) in vec3 sqrverts;
+
+out vec2 tex;
+
+uniform mat4 viewproj;
+uniform vec3 cameraright;
+uniform vec3 cameraup;
+uniform vec3 bbpos;
+uniform vec2 bbsize;
+
+void main()
+{
+	/*vec3 vertexpos = bbpos + cameraright*sqrverts.x*bbsize.x + cameraup*sqrverts.y*bbsize.y;
+	
+	gl_Position = viewproj*vec4(vertexpos, 1.0f);
+	
+	gl_Position /= gl_Position.w;
+	gl_Position.xy += sqrverts.xy * vec2(0.2, 0.05);*/
+	
+	vec3 cameraat = normalize(cross(cameraright, cameraup));
+	
+	float cosHalfA = sqrt((1 + dot(vec3(0,0,1), cameraat))/2);
+	float sinHalfA = sqrt(1 - cosHalfA*cosHalfA);
+	
+	vec3 v = bbpos + vec3(sqrverts.x*bbsize.x, sqrverts.y*bbsize.y, 0);
+	vec3 p = vec3(0, dot(vec3(1,0,0), cameraat) < 0 ? -sinHalfA : sinHalfA, 0);
+	vec3 vxp = cross(v, p);
+	vec3 p_xvxp = cross(vxp, p);
+	
+	gl_Position = viewproj*vec4(v - 2*cosHalfA*vxp + 2*cross(vxp,p), 1);
+	
+	tex = sqrverts.xy + vec2(0.5, 0.5);
+}

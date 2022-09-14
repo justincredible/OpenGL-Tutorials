@@ -1,0 +1,14 @@
+#version 330 core
+
+layout(location = 0) in vec2 vertexPosition;
+layout(location = 1) in vec2 texUV;
+
+out vec2 tex;
+
+void main()
+{
+    vec2 homospace = (vertexPosition - vec2(400,300)) / vec2(400,300);
+	gl_Position = vec4(homospace,0,1);
+	
+	tex = texUV;
+}

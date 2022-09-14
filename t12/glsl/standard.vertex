@@ -1,0 +1,33 @@
+#version 330 core
+
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec2 texUV;
+layout(location = 2) in vec3 vertexNormal;
+
+out vec2 tex;
+out vec3 normal;
+out vec3 eyedir;
+out vec3 lightdir;
+out float distance;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+uniform vec3 lightpos;
+
+void main()
+{
+    vec3 worldpos = (model*vec4(vertexPosition,1)).xyz;
+	vec3 viewpos = (view*vec4(worldpos,1)).xyz;
+	gl_Position = projection*vec4(viewpos,1);
+	
+	distance = length( lightpos - worldpos );
+	
+	eyedir = -viewpos;
+	
+	lightdir = eyedir + (view * vec4(lightpos,1)).xyz;
+	
+	normal = (view * model * vec4(vertexNormal,0)).xyz;
+	
+	tex = texUV;
+}

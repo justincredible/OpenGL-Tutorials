@@ -1,0 +1,13 @@
+#version 330 core
+
+in vec2 tex;
+in vec4 particleclr;
+
+out vec4 color;
+
+uniform sampler2D sample;
+
+void main()
+{
+	color = texture( sample, tex ) * particleclr;
+}

@@ -1,0 +1,44 @@
+#version 330 core
+
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec2 vertexUV;
+layout(location = 2) in vec3 vertexNormal;
+layout(location = 3) in vec3 vertexTangent;
+layout(location = 4) in vec3 vertexBitangent;
+
+out vec2 uv;
+out vec3 eyecam;
+out vec3 lightcam;
+out vec3 lighttan;
+out vec3 eyetan;
+out float distance;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+uniform mat3 baseview;
+uniform vec3 lightpos;
+
+void main()
+{
+    vec3 worldpos = (model*vec4(vertexPosition,1)).xyz;
+	vec3 viewpos = (view*vec4(worldpos,1)).xyz;
+	gl_Position = projection*vec4(viewpos,1);
+	
+	distance = length(lightpos - worldpos);
+	
+	eyecam = -viewpos;
+	
+	lightcam = eyecam + (view * vec4(lightpos,1)).xyz;
+	
+	//normal = (view * model * vec4(vertexNormal,0)).xyz;
+	
+	uv = vertexUV;
+	
+	vec3 tancam = baseview * vertexTangent;
+	vec3 bitcam = baseview * vertexBitangent;
+	vec3 norcam = baseview * vertexNormal;
+	
+	lighttan = vec3(dot(lightcam, tancam), dot(lightcam, bitcam), dot(lightcam, norcam));
+	eyetan = vec3(dot(eyecam, tancam), dot(eyecam, bitcam), dot(eyecam, norcam));
+}

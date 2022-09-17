@@ -9,13 +9,9 @@ data OpenGL = OpenGL { getProjection :: [GLfloat] }
     deriving (Eq, Show)
 
 initialize window width height = do
-    {-glfwWindow <- getWin32Window window
-    hdc <- getDC (Just window)
-    context <- getWGLContext window-}
     glEnable GL_DEPTH_TEST
     glFrontFace GL_CW
     glEnable GL_CULL_FACE
-    glCullFace GL_BACK
     
     swapInterval 1
     

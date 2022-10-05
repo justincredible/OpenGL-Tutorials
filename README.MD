@@ -13,6 +13,10 @@ Ti folders use Graphics.Rendering.OpenGL like the windowing tutorials.
 
 Ri folder use the raw OpenGL bindings from Graphics.GL. The OpenGL tutorials end after ambient lighting, but the DirectX tutorials allowed me to easily implement an additional specular lighting tutorial.
 
-## Next Steps
+## Sound
 
-I will be following these [OpenGL tutorials](http://www.opengl-tutorial.org/) to understand the OpenGL API better. Many of the remaining RasterTek DirectX tutorials can be ported to OpenGL just by knowing how to render to a texture.
+OpenAL worked nicely with the tutorial from [IndieGameDev](https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/).
+
+## CPU usage
+
+The implementation using the PDH library seems simple enough, but I had great difficulty trying to create bindings to it. I may revisit this at a later time, but if I was proficient with the FFI I would be using DirectX on Windows.

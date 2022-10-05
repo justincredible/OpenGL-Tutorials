@@ -1,6 +1,6 @@
 if ($args.Count -eq 0)
 {
-	ghc -odir object -hidir object -o main.exe Main.hs
+	ghc -o main.exe Main.hs -odir object -hidir object
 }
 else
 {

@@ -26,7 +26,7 @@ main = do
     
     let width = 800
         height = 600
-    (window,(scrWidth, scrHeight)) <- openWindow "Tutorial 8" width height
+    (window,(scrWidth, scrHeight)) <- openWindow "Tutorial 13" width height
     
     {-debugCallback <- GLFW.getWindowOpenGLDebugContext window >>= \confirmed -> do
         funptr <- makeGLDEBUGPROC debugOutputCallback

@@ -27,7 +27,7 @@ main = do
 
     let width = 800
         height = 600
-    (window,(scrWidth, scrHeight)) <- openWindow "Tutorial 8" width height
+    (window,(scrWidth, scrHeight)) <- openWindow "Tutorial 16" width height
 
     -- uncomment freeHaskellFunPtr call below with this code
     {-debugCallback <- GLFW.getWindowOpenGLDebugContext window >>= \confirmed -> do

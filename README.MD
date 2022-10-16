@@ -11,7 +11,7 @@ Ti folders use Graphics.Rendering.OpenGL like the windowing tutorials.
 
 ## Ri
 
-Ri folder use the raw OpenGL bindings from Graphics.GL. The OpenGL tutorials end after ambient lighting, but the DirectX tutorials allowed me to easily implement an additional specular lighting tutorial.
+Ri folder use the raw OpenGL bindings from Graphics.GL.
 
 ## Sound
 

@@ -68,7 +68,7 @@ instance Render Frame where
         
         let Just dbgwnd = getDebugWindow frame
 
-        update dbgwnd (II 50 50) >>= (render . snd)
+        update dbgwnd (II 50 50) >>= render . snd
         
         turnZBufferOn
         

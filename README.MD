@@ -1,5 +1,6 @@
 # Rastertek OpenGL
 The tutorial series for OpenGL at [RasterTek](http://rastertek.com/tutgl40.html) written in Haskell.
+The tutorial series for DirectX 11 at [RasterTek](https://rastertek.com/tutdx11.html) written in OpenGL and Haskell.
 
 ## Windowing
 

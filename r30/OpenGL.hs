@@ -23,7 +23,7 @@ data OpenGL = OpenGL {
 
 initialize window width height = do
     glEnable GL_DEPTH_TEST -- default less
-    --glEnable GL_CULL_FACE -- default back
+    glEnable GL_CULL_FACE -- default back
     glBlendFunc GL_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
     
     swapInterval 1

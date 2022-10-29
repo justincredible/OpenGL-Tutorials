@@ -1,0 +1,20 @@
+#version 460 core
+
+layout(triangles, equal_spacing) in;
+
+in vec2 texcrd[];
+
+out vec2 tex;
+
+uniform mat4 world;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+	vec4 vertexPos = gl_TessCoord.x*gl_in[0].gl_Position + gl_TessCoord.y*gl_in[1].gl_Position + gl_TessCoord.z*gl_in[2].gl_Position;
+	
+	gl_Position = projection * view * world * vertexPos;
+	
+	tex = gl_TessCoord.x*texcrd[0] + gl_TessCoord.y*texcrd[1] + gl_TessCoord.z*texcrd[2];
+}

@@ -1,0 +1,24 @@
+#version 460 core
+
+layout(vertices = 3) out;
+
+in vec2 texturecrd[];
+out vec2 texcrd[];
+
+uniform int tessamt;
+
+void main()
+{
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+	
+    texcrd[gl_InvocationID] = texturecrd[gl_InvocationID];
+
+    if(gl_InvocationID == 0)
+    {
+        gl_TessLevelOuter[0] = tessamt;
+        gl_TessLevelOuter[1] = tessamt;
+        gl_TessLevelOuter[2] = tessamt;
+
+        gl_TessLevelInner[0] = tessamt;
+    }
+}

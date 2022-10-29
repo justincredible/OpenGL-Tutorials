@@ -62,7 +62,7 @@ instance Render Frame where
         
         swapBuffers . getWindow $ frame''
         
-        return (success1 && success2,frame)
+        return (success1 && success2,frame'')
 
 instance Update Frame where
     update frame (LFLF position rotation) = do

@@ -18,6 +18,10 @@ Ri folder use the raw OpenGL bindings from Graphics.GL.
 
 OpenAL worked nicely with the tutorial from [IndieGameDev](https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/).
 
+## Tessellation
+
+The guest article from [LearnOpenGL](https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation) provided familiarity with the control and evaluation shaders.
+
 ## CPU usage
 
 The implementation using the PDH library seems simple enough, but I had great difficulty trying to create bindings to it. I may revisit this at a later time, but if I was proficient with the FFI I would be using DirectX on Windows.

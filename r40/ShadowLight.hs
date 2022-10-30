@@ -21,8 +21,13 @@ initialize = return . (ShadowLight [0,0,-1] [0,0,0] [0.15,0.15,0.15,1] [1,1,1,1]
 instance Update ShadowLight where
     update light None = return (True, light {
         getView = lookAtLH (getPosition light) (getLookAt light) [0,1,0] })
+
     update light (FF near far) = return (True, light {
         getProjection = perspectiveFovLH (pi/2) 1 near far })
+
+    update light _ = do
+        putStrLn "Incorrect shadow light parameters."
+        return (False,light)
 
 viewMatrix = getView
 

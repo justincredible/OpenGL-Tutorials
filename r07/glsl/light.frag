@@ -1,27 +1,19 @@
 #version 460 core
 
-in vec2 txcrd;
-in vec3 nrml;
+in vec2 tex;
+in vec3 normal;
 
 out vec4 color;
 
-uniform sampler2D tex0;
+uniform sampler2D ture;
 uniform vec3 direction;
 uniform vec4 diffuse;
 
 void main()
-{
-	vec4 texclr;
-	vec3 lightdir;
-	float intensity;
+{	
+	float intensity = clamp(dot(normal, -direction),0,1);
 	
-	texclr = texture(tex0, txcrd);
+	color = diffuse*intensity;
 	
-	lightdir = -direction;
-	
-	intensity = clamp(dot(nrml, lightdir), 0.0f, 1.0f);
-	
-	color = clamp(diffuse*intensity, 0.0f, 1.0f);
-	
-	color *= texclr;
+	color *= texture(ture, tex);
 }

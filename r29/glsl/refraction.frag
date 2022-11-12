@@ -1,7 +1,7 @@
 #version 460 core
 
 in vec2 tex;
-in vec3 nrml;
+in vec3 normal;
 in float clip;
 
 out vec4 color;
@@ -15,15 +15,11 @@ void main()
 {	
 	if (clip < 0) discard;
 	
-	vec4 texclr = texture(ture, tex);
-	
 	color = ambient;
 	
-	float intensity = clamp(dot(nrml, -direction), 0, 1);
+	float intensity = clamp(dot(normal, -direction),0,1);
 	
-	if (intensity > 0) color += intensity*diffuse;
+	color = clamp(color + intensity*diffuse,0,1);
 	
-	color = clamp(color, 0, 1);
-	
-	color *= texclr;
+	color *= texture(ture, tex);
 }

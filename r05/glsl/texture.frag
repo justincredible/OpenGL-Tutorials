@@ -4,13 +4,9 @@ in vec2 tex;
 
 out vec4 color;
 
-uniform sampler2D tex0;
+uniform sampler2D ture;
 
 void main()
 {
-	vec4 texclr;
-	
-	texclr = texture(tex0, tex);
-	
-	color = texclr;
+	color = texture(ture, tex);
 }

@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data SpecularMapShader = SpecularMapShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -25,7 +24,7 @@ data SpecularMapShader = SpecularMapShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/specularmap.vert" "glsl/specularmap.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/specularmap.vert", "glsl/specularmap.frag"]
     
     if not success
     then return (False, Nothing)
@@ -42,19 +41,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,camerapos,direction,diffuse,specular,power,texlocn]
         return (success, Just $ SpecularMapShader
-            program vShader fShader world view projection camerapos direction diffuse specular power texlocn)
+            program shaders world view projection camerapos direction diffuse specular power texlocn)
 
 instance Shutdown SpecularMapShader where
-    shutdown (SpecularMapShader program vShader fShader _ _ _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (SpecularMapShader program shaders _ _ _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (SpecularMapShader program _ _ world view projection camerapos direction diffuse specular power texlocn)
+parameters (SpecularMapShader program _ world view projection camerapos direction diffuse specular power texlocn)
     worldMatrix viewMatrix projectionMatrix camposition lightdir lightdif lightspec lightpow texunit = do
         glUseProgram program
 

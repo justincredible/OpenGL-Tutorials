@@ -29,9 +29,9 @@ initialize texFile texUnit wrap = do
         numInstances = 4
         indices = [0..2] :: [GLubyte]
         vertices = [
-            -1,-1,0,0,1,
-            1,-1,0,1,1,
-            0,1,0,0.5,0 ] :: [GLfloat]
+            -1,-1,0,0,0,
+            1,-1,0,1,0,
+            0,1,0,0.5,1 ] :: [GLfloat]
         instances = [
             -1.5,-1.5,5,
             -1.5,1.5,5,
@@ -54,7 +54,7 @@ initialize texFile texUnit wrap = do
     sequence_ $ map glEnableVertexAttribArray [0..2]
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
     
     instanceBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
 

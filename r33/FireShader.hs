@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data FireShader = FireShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -28,7 +27,7 @@ data FireShader = FireShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/fire.vert" "glsl/fire.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/fire.vert", "glsl/fire.frag"]
     
     if not success
     then return (False, Nothing)
@@ -48,19 +47,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,frametime,scrolls,scales,fire,noise,alpha,distortions,distortscale,distortbias]
         return (success, Just $ FireShader
-            program vShader fShader world view projection frametime scrolls scales fire noise alpha distortions distortscale distortbias)
+            program shaders world view projection frametime scrolls scales fire noise alpha distortions distortscale distortbias)
 
 instance Shutdown FireShader where
-    shutdown (FireShader program vShader fShader _ _ _ _ _ _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (FireShader program shaders _ _ _ _ _ _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (FireShader program _ _ world view projection frametime scrolls scales fire noise alpha distortions distortscale distortbias)
+parameters (FireShader program _ world view projection frametime scrolls scales fire noise alpha distortions distortscale distortbias)
     worldMx viewMx projectionMx time speeds scrlscales fireunit noiseunit alphaunit distortVc scale bias = do
         glUseProgram program
 

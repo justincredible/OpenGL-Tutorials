@@ -10,52 +10,38 @@ import ShaderCompilinker
 
 data ColorShader = ColorShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint }
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/color.vert" "glsl/color.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/color.vert", "glsl/color.frag"]
     
     if not success
     then return (False, Nothing)
     else do
-        withArray (map castCharToCChar "position") $ \ptr ->
-            glBindAttribLocation program 0 ptr
-        withArray (map castCharToCChar "colorv") $ \ptr ->
-            glBindAttribLocation program 1 ptr
-        
-        world <- withArray (map castCharToCChar "world") $ \ptr ->
-            glGetUniformLocation program ptr
-        view <- withArray (map castCharToCChar "view") $ \ptr ->
-            glGetUniformLocation program ptr
-        projection <- withArray (map castCharToCChar "projection") $ \ptr ->
-            glGetUniformLocation program ptr
+        world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
+        view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
+        projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
 
         let success = world /= -1 && view /= -1 && projection /= -1
-        return (success, Just $ ColorShader program vShader fShader world view projection)
+        return (success, Just $ ColorShader program shaders world view projection)
 
 instance Shutdown ColorShader where
-    shutdown (ColorShader program vShader fShader _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (ColorShader program shaders _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (ColorShader program _ _ world view projection) worldMatrix viewMatrix projectionMatrix = do
+parameters (ColorShader program _ world view projection) worldMatrix viewMatrix projectionMatrix = do
     glUseProgram program
 
-    withArray worldMatrix $ \ptr ->
-        glUniformMatrix4fv world 1 GL_FALSE ptr
+    withArray worldMatrix $ glUniformMatrix4fv world 1 GL_FALSE
 
-    withArray viewMatrix $ \ptr ->
-        glUniformMatrix4fv view 1 GL_FALSE ptr
+    withArray viewMatrix $ glUniformMatrix4fv view 1 GL_FALSE
 
-    withArray projectionMatrix $ \ptr ->
-        glUniformMatrix4fv projection 1 GL_FALSE ptr
+    withArray projectionMatrix $ glUniformMatrix4fv projection 1 GL_FALSE

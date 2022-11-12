@@ -10,8 +10,7 @@ import ShaderCompilinker
 
 data LightShader = LightShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,49 +20,34 @@ data LightShader = LightShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/light.vert" "glsl/light.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/light.vert", "glsl/light.frag"]
 
     if not success
     then return (False, Nothing)
     else do
-        withArray0 0 (map castCharToCChar "position") $ \ptr ->
-            glBindAttribLocation program 0 ptr
-        withArray0 0 (map castCharToCChar "texcoord") $ \ptr ->
-            glBindAttribLocation program 1 ptr
-        withArray0 0 (map castCharToCChar "normal") $ \ptr ->
-            glBindAttribLocation program 2 ptr
-        
-        world <- withArray0 0 (map castCharToCChar "world") $ \ptr ->
-            glGetUniformLocation program ptr
-        view <- withArray0 0 (map castCharToCChar "view") $ \ptr ->
-            glGetUniformLocation program ptr
-        projection <- withArray0 0 (map castCharToCChar "projection") $ \ptr ->
-            glGetUniformLocation program ptr
-        tex0 <- withArray0 0 (map castCharToCChar "tex0") $ \ptr ->
-            glGetUniformLocation program ptr
-        direction <- withArray0 0 (map castCharToCChar "direction") $ \ptr ->
-            glGetUniformLocation program ptr
-        diffuse <- withArray0 0 (map castCharToCChar "diffuse") $ \ptr ->
-            glGetUniformLocation program ptr
+        world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
+        view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
+        projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
+        texture <- withArray0 0 (map castCharToCChar "ture") $ glGetUniformLocation program
+        direction <- withArray0 0 (map castCharToCChar "direction") $ glGetUniformLocation program
+        diffuse <- withArray0 0 (map castCharToCChar "diffuse") $ glGetUniformLocation program
 
-        let success = all (/= -1) [world,view,projection,tex0,direction,diffuse]
+        let success = all (/= -1) [world,view,projection,texture,direction,diffuse]
         return . (,) success . Just $ LightShader
-            program vShader fShader
+            program shaders
             world view projection
-            tex0
+            texture
             direction diffuse
 
 instance Shutdown LightShader where
-    shutdown (LightShader program vShader fShader _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (LightShader program shaders _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (LightShader program _ _ world view projection texture direction diffuse)
+parameters (LightShader program _ world view projection texture direction diffuse)
     worldMx viewMx projectionMx texUnit lightDir diffuseClr = do
         glUseProgram program
 

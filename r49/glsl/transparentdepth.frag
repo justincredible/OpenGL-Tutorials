@@ -13,5 +13,5 @@ void main()
 	
 	float depthval = depthpos.z/depthpos.w;
 	
-	color = vec4(depthval, depthval, depthval, 1);
+	color = vec4(vec3(depthval),1);
 }

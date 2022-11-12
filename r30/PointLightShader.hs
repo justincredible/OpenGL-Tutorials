@@ -10,8 +10,7 @@ import ShaderCompilinker
 
 data PointLightShader = PointLightShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,7 +20,7 @@ data PointLightShader = PointLightShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/pointlight.vert" "glsl/pointlight.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/pointlight.vert", "glsl/pointlight.frag"]
 
     if not success
     then return (False, Nothing)
@@ -35,19 +34,17 @@ initialize = do
 
         let success = all (/= -1) [world,view,projection,lightpos,texture,diffuse]
         return (success, Just $
-            PointLightShader program vShader fShader world view projection lightpos texture diffuse)
+            PointLightShader program shaders world view projection lightpos texture diffuse)
 
 instance Shutdown PointLightShader where
-    shutdown (PointLightShader program vShader fShader _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (PointLightShader program shaders _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (PointLightShader program _ _ world view projection lightpos texture diffuse)
+parameters (PointLightShader program _ world view projection lightpos texture diffuse)
     worldMx viewMx projectionMx positions texunit diffuseClrs = do
         glUseProgram program
 

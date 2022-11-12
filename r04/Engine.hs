@@ -41,7 +41,6 @@ run = do
 
 openWindow title width height = do
     defaultWindowHints
-    -- Set up PixelFormat in GLFW
     windowHint (WindowHint'ContextVersionMajor 4)
     windowHint (WindowHint'ContextVersionMinor 6)
     windowHint (WindowHint'Resizable False)

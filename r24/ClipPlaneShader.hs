@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data ClipPlaneShader = ClipPlaneShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,7 +20,7 @@ data ClipPlaneShader = ClipPlaneShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/clipplane.vert" "glsl/clipplane.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/clipplane.vert", "glsl/clipplane.frag"]
     
     if not success
     then return (False, Nothing)
@@ -37,19 +36,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,clipplane,texlocn]
         return (success, Just $ ClipPlaneShader
-            program vShader fShader world view projection clipplane texlocn)
+            program shaders world view projection clipplane texlocn)
 
 instance Shutdown ClipPlaneShader where
-    shutdown (ClipPlaneShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (ClipPlaneShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (ClipPlaneShader program _ _ world view projection clipplane texlocn)
+parameters (ClipPlaneShader program _ world view projection clipplane texlocn)
     worldMatrix viewMatrix projectionMatrix cliplane texunit = do
         glUseProgram program
 

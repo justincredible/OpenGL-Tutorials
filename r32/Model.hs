@@ -39,11 +39,10 @@ initialize dataFile clrTex clrUnit nrmlTex nrmlUnit wrap = do
     withArray vertices $ \ptr ->
         glBufferData GL_ARRAY_BUFFER (fromIntegral $ numVertices*vertexSize) ptr GL_STATIC_DRAW
 
-    sequence_ $ map glEnableVertexAttribArray [0..2]
+    sequence_ $ map glEnableVertexAttribArray [0..1]
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 2 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (5*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
     
     indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     
@@ -79,7 +78,7 @@ instance Shutdown Model where
         
         glBindVertexArray vArray
         
-        sequence_ $ map glDisableVertexAttribArray [0..2]
+        sequence_ $ map glDisableVertexAttribArray [0..1]
         
         glBindBuffer GL_ELEMENT_ARRAY_BUFFER 0
         with iBuffer $ glDeleteBuffers 1

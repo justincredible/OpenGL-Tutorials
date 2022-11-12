@@ -1,6 +1,6 @@
 #version 460 core
 
-layout(vertices = 3) out;
+layout(vertices=3)out;
 
 in vec2 texturecrd[];
 out vec2 texcrd[];

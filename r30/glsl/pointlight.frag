@@ -22,7 +22,5 @@ void main()
 		lightclr += diffuseClrs[i]*intensity[i];
 	}
 	
-	vec4 texclr = texture(ture, tex);
-	
-	color = clamp(lightclr,0,1)*texclr;
+	color = clamp(lightclr,0,1)*texture(ture, tex);
 }

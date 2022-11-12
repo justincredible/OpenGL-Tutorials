@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data GlassShader = GlassShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -23,7 +22,7 @@ data GlassShader = GlassShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/glass.vert" "glsl/glass.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/glass.vert", "glsl/glass.frag"]
     
     if not success
     then return (False, Nothing)
@@ -38,19 +37,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,colortex,normaltex,refractex,refrascale]
         return (success, Just $ GlassShader
-            program vShader fShader world view projection colortex normaltex refractex refrascale)
+            program shaders world view projection colortex normaltex refractex refrascale)
 
 instance Shutdown GlassShader where
-    shutdown (GlassShader program vShader fShader _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (GlassShader program shaders _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (GlassShader program _ _ world view projection colortex normaltex refractex refrascale)
+parameters (GlassShader program _ world view projection colortex normaltex refractex refrascale)
     worldMatrix viewMatrix projectionMatrix clrunit nrmlunit refrunit scale = do
         glUseProgram program
 

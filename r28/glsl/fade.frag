@@ -9,9 +9,6 @@ uniform float fadeamt;
 
 void main()
 {
-	vec4 texclr = texture(ture, tex);
-	
-	color = fadeamt*texclr;
-	
+	color = fadeamt*texture(ture, tex);
 	color.a = 1;
 }

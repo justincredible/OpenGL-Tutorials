@@ -18,12 +18,9 @@ void main()
 	
 	float intensity = clamp(dot(normal, -direction),0,1);
 	
-	color += intensity*diffuse;
-	color = clamp(color,0,1);
+	color = clamp(color + intensity*diffuse,0,1);
 	
-	vec4 texclr = texture(ture, tex);
-	
-	color *= texclr;
+	color *= texture(ture, tex);
 	
 	vec2 projectex = vec2(viewpos.x/viewpos.w/2 + 0.5, viewpos.y/viewpos.w/2 + 0.5);
 	

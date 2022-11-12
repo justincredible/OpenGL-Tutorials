@@ -60,8 +60,8 @@ initialize texFile texUnit wrap = do
     glBufferData GL_ARRAY_BUFFER (fromIntegral maxps*4*fromIntegral vxsz) nullPtr GL_DYNAMIC_DRAW
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE vxsz nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE vxsz $ bufferOffset (3*sizeOf(0::GLfloat))
-    glVertexAttribPointer 2 4 GL_FLOAT GL_FALSE vxsz $ bufferOffset (5*sizeOf(0::GLfloat))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE vxsz $ bufferOffset (3*sizeOf (0::GLfloat))
+    glVertexAttribPointer 2 4 GL_FLOAT GL_FALSE vxsz $ bufferOffset (5*sizeOf (0::GLfloat))
     
     glBindBuffer GL_ELEMENT_ARRAY_BUFFER ebo
     withArray (indices (fromIntegral maxps) :: [GLushort]) $

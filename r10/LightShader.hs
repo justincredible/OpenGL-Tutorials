@@ -10,13 +10,12 @@ import ShaderCompilinker
 
 data LightShader = LightShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
+    getPositionLocation :: GLint,
     getTextureLocation :: GLint,
-    getCameraLocation :: GLint,
     getDirectionLocation :: GLint,
     getAmbientLocation :: GLint,
     getDiffuseLocation :: GLint,
@@ -25,59 +24,36 @@ data LightShader = LightShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/light.vert" "glsl/light.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/light.vert", "glsl/light.frag"]
 
     if not success
     then return (False, Nothing)
     else do
-        withArray0 0 (map castCharToCChar "pos") $ \ptr ->
-            glBindAttribLocation program 0 ptr
-        withArray0 0 (map castCharToCChar "tex") $ \ptr ->
-            glBindAttribLocation program 1 ptr
-        withArray0 0 (map castCharToCChar "nml") $ \ptr ->
-            glBindAttribLocation program 2 ptr
-        
-        world <- withArray0 0 (map castCharToCChar "world") $ \ptr ->
-            glGetUniformLocation program ptr
-        view <- withArray0 0 (map castCharToCChar "view") $ \ptr ->
-            glGetUniformLocation program ptr
-        projection <- withArray0 0 (map castCharToCChar "projection") $ \ptr ->
-            glGetUniformLocation program ptr
-        camera <- withArray0 0 (map castCharToCChar "camera") $ \ptr ->
-            glGetUniformLocation program ptr
-        tex0 <- withArray0 0 (map castCharToCChar "tex0") $ \ptr ->
-            glGetUniformLocation program ptr
-        direction <- withArray0 0 (map castCharToCChar "direction") $ \ptr ->
-            glGetUniformLocation program ptr
-        ambient <- withArray0 0 (map castCharToCChar "ambient") $ \ptr ->
-            glGetUniformLocation program ptr
-        diffuse <- withArray0 0 (map castCharToCChar "diffuse") $ \ptr ->
-            glGetUniformLocation program ptr
-        specular <- withArray0 0 (map castCharToCChar "specular") $ \ptr ->
-            glGetUniformLocation program ptr
-        power <- withArray0 0 (map castCharToCChar "power") $ \ptr ->
-            glGetUniformLocation program ptr
+        world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
+        view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
+        projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
+        camerapos <- withArray0 0 (map castCharToCChar "camerapos") $ glGetUniformLocation program
+        texture <- withArray0 0 (map castCharToCChar "ture") $ glGetUniformLocation program
+        direction <- withArray0 0 (map castCharToCChar "direction") $ glGetUniformLocation program
+        ambient <- withArray0 0 (map castCharToCChar "ambient") $ glGetUniformLocation program
+        diffuse <- withArray0 0 (map castCharToCChar "diffuse") $ glGetUniformLocation program
+        specular <- withArray0 0 (map castCharToCChar "specular") $ glGetUniformLocation program
+        power <- withArray0 0 (map castCharToCChar "power") $ glGetUniformLocation program
 
-        let success = all (/= -1) [world,view,projection,camera,tex0,direction,ambient,diffuse,specular,power]
+        let success = all (/= -1) [world,view,projection,camerapos,texture,direction,ambient,diffuse,specular,power]
         return . (,) success . Just $ LightShader
-            program vShader fShader
-            world view projection
-            tex0
-            camera
-            direction ambient diffuse specular power
+            program shaders world view projection camerapos texture direction ambient diffuse specular power
 
 instance Shutdown LightShader where
-    shutdown (LightShader program vShader fShader _ _ _ _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (LightShader program shaders _ _ _ _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (LightShader program _ _ world view projection texture camera direction ambient diffuse specular power)
-    worldMx viewMx projectionMx texID cameraPos lightDir ambientClr diffuseClr specularClr specularPwr = do
+parameters (LightShader program _ world view projection camerapos texture direction diffuse ambient specular power)
+    worldMx viewMx projectionMx position texUnit lightDir diffuseClr ambientClr specularClr specpwr = do
         glUseProgram program
 
         withArray worldMx $ glUniformMatrix4fv world 1 GL_FALSE
@@ -86,9 +62,9 @@ parameters (LightShader program _ _ world view projection texture camera directi
 
         withArray projectionMx $ glUniformMatrix4fv projection 1 GL_FALSE
 
-        withArray cameraPos $ glUniform3fv camera 1
+        withArray position $ glUniform3fv camerapos 1
 
-        glUniform1i texture texID
+        glUniform1i texture texUnit
 
         withArray lightDir $ glUniform3fv direction 1
 
@@ -98,4 +74,4 @@ parameters (LightShader program _ _ world view projection texture camera directi
 
         withArray specularClr $ glUniform4fv specular 1
 
-        glUniform1f power specularPwr
+        glUniform1f power specpwr

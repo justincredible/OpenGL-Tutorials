@@ -1,10 +1,10 @@
 #version 460 core
 
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 texcoord;
-layout(location = 2) in vec3 normal;
-layout(location = 3) in vec3 tangent;
-layout(location = 4) in vec3 bitangent;
+layout(location=0)in vec3 position;
+layout(location=1)in vec2 texcoord;
+layout(location=2)in vec3 normal;
+layout(location=3)in vec3 tangent;
+layout(location=4)in vec3 bitangent;
 
 out vec2 tex;
 out vec3 nrm;
@@ -17,9 +17,7 @@ uniform mat4 projection;
 
 void main()
 {
-	gl_Position = world*vec4(position, 1.0f);
-	gl_Position = view*gl_Position;
-	gl_Position = projection*gl_Position;
+	gl_Position = projection*view*world*vec4(position, 1.0f);
 	
 	tex = texcoord;
 	

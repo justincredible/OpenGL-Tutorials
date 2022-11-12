@@ -47,10 +47,10 @@ initialize dataFile texFile texUnit wrap nrmFile nrmUnit nrmWrap = do
     sequence_ $ map glEnableVertexAttribArray [0..4]
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 2 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (5*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 3 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (8*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 4 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (11*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
+    glVertexAttribPointer 2 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (5*sizeOf (0::GLfloat))
+    glVertexAttribPointer 3 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (8*sizeOf (0::GLfloat))
+    glVertexAttribPointer 4 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (11*sizeOf (0::GLfloat))
     
     indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     
@@ -110,10 +110,10 @@ calculateBumpModelVectors (a:b:c:vertices) = let
         (take 5 b ++ extension):
         (take 5 c ++ extension):
         continuation
-    calculateNormal = (normalize .) . cross
+    calculateNormal = (normalize .) . flip cross
     calculateTangentBitangent = let
-        [x1,y1,z1] = minus (take 3 c) (take 3 a)
-        [x2,y2,z2] = minus (take 3 b) (take 3 a)
+        [x1,y1,z1] = minus (take 3 b) (take 3 a)
+        [x2,y2,z2] = minus (take 3 c) (take 3 a)
         [u1,v1] = take 2 . drop 3 $ a
         [u2,v2] = take 2 . drop 3 $ b
         [u3,v3] = take 2 . drop 3 $ c

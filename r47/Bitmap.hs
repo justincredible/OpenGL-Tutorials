@@ -35,20 +35,20 @@ initialize wWidth wHeight bmWidth bmHeight texFile texUnit = do
     
     glBindBuffer GL_ARRAY_BUFFER vertexBuffer
     
-    let vertexSize = 5*sizeOf (0 :: GLfloat)
+    let vertexSize = 5*sizeOf (0::GLfloat)
     glBufferData GL_ARRAY_BUFFER (fromIntegral $ 4*vertexSize) nullPtr GL_DYNAMIC_DRAW
     
     glEnableVertexAttribArray 0
     glEnableVertexAttribArray 1
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0 :: GLfloat))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
     
     indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     
     glBindBuffer GL_ELEMENT_ARRAY_BUFFER indexBuffer
     withArray ([0,1,2,2,1,3] :: [GLubyte]) $ \ptr ->
-        glBufferData GL_ELEMENT_ARRAY_BUFFER (fromIntegral $ 6*sizeOf (0 :: GLubyte)) ptr GL_STATIC_DRAW
+        glBufferData GL_ELEMENT_ARRAY_BUFFER (fromIntegral $ 6*sizeOf (0::GLubyte)) ptr GL_STATIC_DRAW
     
     (success,texture) <- Texture.initialize texFile texUnit True
     
@@ -85,7 +85,7 @@ instance Update Bitmap where
                     left, bottom, 0, 0, 0,
                     right, top, 0, 1, 1,
                     right, bottom, 0, 1, 0 ]
-                vertexsz = fromIntegral $ 5*sizeOf (0 :: GLfloat)
+                vertexsz = fromIntegral $ 5*sizeOf (0::GLfloat)
             glBindVertexArray (getVertexArray bitmap)
     
             glBindBuffer GL_ARRAY_BUFFER (getVertexBuffer bitmap)

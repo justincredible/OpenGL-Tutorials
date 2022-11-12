@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data FadeShader = FadeShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,7 +20,7 @@ data FadeShader = FadeShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/fade.vert" "glsl/fade.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/fade.vert", "glsl/fade.frag"]
     
     if not success
     then return (False, Nothing)
@@ -37,19 +36,19 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,texlocn,fadeamt]
         return (success, Just $ FadeShader
-            program vShader fShader world view projection texlocn fadeamt)
+            program shaders world view projection texlocn fadeamt)
 
 instance Shutdown FadeShader where
-    shutdown (FadeShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (FadeShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
+        
+        glDeleteProgram program
         
         glDeleteProgram program
 
-parameters (FadeShader program _ _ world view projection texlocn fadeamt)
+parameters (FadeShader program _ world view projection texlocn fadeamt)
     worldMatrix viewMatrix projectionMatrix texunit fade = do
         glUseProgram program
 

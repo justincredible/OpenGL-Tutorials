@@ -43,13 +43,10 @@ initialize dataFile texFile texUnit wrap = do
     withArray vertices $ \ptr ->
         glBufferData GL_ARRAY_BUFFER (fromIntegral $ numVertices*vertexSize) ptr GL_STATIC_DRAW
 
-    sequence_ $ map glEnableVertexAttribArray [0..4]
+    sequence_ $ map glEnableVertexAttribArray [0..1]
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 2 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (5*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 3 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (8*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 4 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (11*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
     
     indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     
@@ -85,7 +82,7 @@ instance Shutdown Model where
         
         glBindVertexArray vArray
         
-        sequence_ $ map glDisableVertexAttribArray [0..4]
+        sequence_ $ map glDisableVertexAttribArray [0..1]
         
         glBindBuffer GL_ELEMENT_ARRAY_BUFFER 0
         with iBuffer $ glDeleteBuffers 1
@@ -107,7 +104,7 @@ calculateModelVectors (a:b:c:vertices) = let
         (take 5 b ++ extension):
         (take 5 c ++ extension):
         continuation
-    calculateNormal [tx,ty,tz] [bx,by,bz] = normalize [ty*bz-tz*by,tz*bx-tx*bz,tx*by-ty*bx]
+    calculateNormal = (normalize .) . flip cross
     calculateTangentBitangent = let
         [x1,y1,z1] = minus (take 3 b) (take 3 a)
         [x2,y2,z2] = minus (take 3 c) (take 3 a)

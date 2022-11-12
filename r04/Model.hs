@@ -20,22 +20,18 @@ data Model = Model {
 
 initialize texFile texUnit wrap = do
     let vertices = [
-            0, 1, 0,      1, 0, 0,
-            1, -1, 0,     0, 1, 0,
-            -1, -1, 0,    0, 0, 1 ]  :: [GLfloat]
+            -1, -1, 0,    0, 0, 1,
+            1, -1, 0,     1, 0, 0,
+            0, 1, 0,      0, 1, 0 ] :: [GLfloat]
         numVertices = length vertices
         indices = [0..2] :: [GLuint]
         numIndices = length indices
     
-    vertexArray <- alloca $ \ptr -> do
-        glGenVertexArrays 1 ptr
-        peek ptr
+    vertexArray <- alloca $ (>>) . glGenVertexArrays 1 <*> peek
         
     glBindVertexArray vertexArray
     
-    vertexBuffer <- alloca $ \ptr -> do
-        glGenBuffers 1 ptr
-        peek ptr
+    vertexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
 
     glBindBuffer GL_ARRAY_BUFFER vertexBuffer
     
@@ -47,11 +43,9 @@ initialize texFile texUnit wrap = do
     glEnableVertexAttribArray 1
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
     
-    indexBuffer <- alloca $ \ptr -> do
-        glGenBuffers 1 ptr
-        peek ptr
+    indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     
     glBindBuffer GL_ELEMENT_ARRAY_BUFFER indexBuffer
     withArray indices $ \ptr ->
@@ -78,13 +72,10 @@ instance Shutdown Model where
         glDisableVertexAttribArray 1
         
         glBindBuffer GL_ELEMENT_ARRAY_BUFFER 0
-        with iBuffer $ \ptr ->
-            glDeleteBuffers 1 ptr
+        with iBuffer $ glDeleteBuffers 1
         
         glBindBuffer GL_ARRAY_BUFFER 0
-        with vBuffer $ \ptr ->
-            glDeleteBuffers 1 ptr
+        with vBuffer $ glDeleteBuffers 1
         
         glBindVertexArray 0
-        with vArray $ \ptr ->
-            glDeleteVertexArrays 1 ptr
+        with vArray $ glDeleteVertexArrays 1

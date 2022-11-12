@@ -37,17 +37,13 @@ initialize dataFile texFile texUnit wrap = do
     withArray vertices $ \ptr ->
         glBufferData GL_ARRAY_BUFFER (fromIntegral $ numVertices*vertexSize) ptr GL_STATIC_DRAW
 
-    glEnableVertexAttribArray 0
-    glEnableVertexAttribArray 1
-    glEnableVertexAttribArray 2
+    sequence_ $ map glEnableVertexAttribArray [0..2]
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
-    glVertexAttribPointer 2 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (5*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
+    glVertexAttribPointer 2 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (5*sizeOf (0::GLfloat))
     
-    indexBuffer <- alloca $ \ptr -> do
-        glGenBuffers 1 ptr
-        peek ptr
+    indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     
     glBindBuffer GL_ELEMENT_ARRAY_BUFFER indexBuffer
     withArray indices $ \ptr ->
@@ -78,8 +74,7 @@ instance Shutdown Model where
         
         glBindVertexArray vArray
         
-        glDisableVertexAttribArray 0
-        glDisableVertexAttribArray 1
+        sequence_ $ map glDisableVertexAttribArray [0..2]
         
         glBindBuffer GL_ELEMENT_ARRAY_BUFFER 0
         with iBuffer $ glDeleteBuffers 1

@@ -10,8 +10,7 @@ import ShaderCompilinker
 
 data RefractionShader = RefractionShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -23,7 +22,7 @@ data RefractionShader = RefractionShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/refraction.vert" "glsl/refraction.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/refraction.vert", "glsl/refraction.frag"]
 
     if not success
     then return (False, Nothing)
@@ -39,19 +38,17 @@ initialize = do
 
         let success = all (/= -1) [world,view,projection,clipplane,texture,direction,ambient,diffuse]
         return (success, Just $
-            RefractionShader program vShader fShader world view projection clipplane texture direction ambient diffuse)
+            RefractionShader program shaders world view projection clipplane texture direction ambient diffuse)
 
 instance Shutdown RefractionShader where
-    shutdown (RefractionShader program vShader fShader _ _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (RefractionShader program shaders _ _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (RefractionShader program _ _ world view projection clipplane texture direction ambient diffuse)
+parameters (RefractionShader program _ world view projection clipplane texture direction ambient diffuse)
     worldMx viewMx projectionMx cliplane texunit lightDir ambientClr diffuseClr = do
         glUseProgram program
 

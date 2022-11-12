@@ -1,25 +1,20 @@
 #version 460 core
 
-in vec2 coord;
+in vec2 tex;
 in vec3 normal;
 
 out vec4 color;
 
-uniform sampler2D tex0;
+uniform sampler2D ture;
 uniform vec3 direction;
 uniform vec4 diffuse;
 
 void main()
 {
-	vec4 texclr;
-	float intensity;
+	float intensity = clamp(dot(normal, -direction),0,1);
 	
-	texclr = texture(tex0, coord);
+	color = intensity*diffuse;
+	color.a = 1;
 	
-	intensity = clamp(dot(normal, -direction), 0, 1);
-	
-	color += intensity*diffuse;
-	color = clamp(color, 0, 1);
-	
-	color *= texclr;
+	color *= texture(ture, tex);
 }

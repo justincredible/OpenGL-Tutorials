@@ -15,20 +15,17 @@ uniform float power;
 
 void main()
 {
-	vec4 texclr = texture(ture, tex);
-	
 	color = ambient;
 	
 	float intensity = clamp(dot(normal, -direction),0,1);
 	
-	color += intensity*diffuse;
-	color = clamp(color,0,1);
+	color = clamp(color + intensity*diffuse,0,1);
 	
 	vec3 reflection = normalize(2*intensity*normal + direction);
 	
 	vec4 speclr = intensity*specular*pow(clamp(dot(reflection, viewdir),0,1), power);
 	
-	color *= texclr;
+	color *= texture(ture, tex);
 	
 	color = clamp(color + speclr,0,1);
 }

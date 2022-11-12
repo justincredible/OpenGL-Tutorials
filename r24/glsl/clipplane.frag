@@ -11,7 +11,5 @@ void main()
 {
 	if (clip < 0) discard;
 	
-	vec4 texclr = texture(ture, tex);
-	
-	color = texclr;
+	color = texture(ture, tex);
 }

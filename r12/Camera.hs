@@ -12,7 +12,7 @@ data Camera = Camera {
     deriving (Eq, Show)
 
 initialize :: IO Camera
-initialize = return . Camera [0,0,10] [0,0,0] . take 16 . cycle $ [1,0,0,0,0]
+initialize = return . Camera [0,0,-10] [0,0,0] . take 16 . cycle $ [1,0,0,0,0]
 
 instance Render Camera where
     render camera@(Camera position rotation _) = do

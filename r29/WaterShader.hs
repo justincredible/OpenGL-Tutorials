@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data WaterShader = WaterShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -25,14 +24,11 @@ data WaterShader = WaterShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/water.vert" "glsl/water.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/water.vert", "glsl/water.frag"]
     
     if not success
     then return (False, Nothing)
     else do
-        withArray (map castCharToCChar "position") $ glBindAttribLocation program 0
-        withArray (map castCharToCChar "texcoord") $ glBindAttribLocation program 1
-        
         world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
         view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
         projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
@@ -45,19 +41,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,reflection,reflectex,refractex,normaltex,watertrans,refscale]
         return (success, Just $ WaterShader
-            program vShader fShader world view projection reflection reflectex refractex normaltex watertrans refscale)
+            program shaders world view projection reflection reflectex refractex normaltex watertrans refscale)
 
 instance Shutdown WaterShader where
-    shutdown (WaterShader program vShader fShader _ _ _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (WaterShader program shaders _ _ _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (WaterShader program _ _ world view projection reflection reflectex refractex normaltex watertrans refscale)
+parameters (WaterShader program _ world view projection reflection reflectex refractex normaltex watertrans refscale)
     worldMx viewMx projectionMx reflectionMx reflunit refrunit normunit translate scale = do
         glUseProgram program
 

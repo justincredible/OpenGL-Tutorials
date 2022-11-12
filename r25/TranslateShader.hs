@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data TranslateShader = TranslateShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,7 +20,7 @@ data TranslateShader = TranslateShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/translate.vert" "glsl/translate.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/translate.vert", "glsl/translate.frag"]
     
     if not success
     then return (False, Nothing)
@@ -37,19 +36,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,texlocn,textrans]
         return (success, Just $ TranslateShader
-            program vShader fShader world view projection texlocn textrans)
+            program shaders world view projection texlocn textrans)
 
 instance Shutdown TranslateShader where
-    shutdown (TranslateShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (TranslateShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (TranslateShader program _ _ world view projection texlocn textrans)
+parameters (TranslateShader program _ world view projection texlocn textrans)
     worldMatrix viewMatrix projectionMatrix texunit translate = do
         glUseProgram program
 

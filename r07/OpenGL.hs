@@ -10,7 +10,6 @@ data OpenGL = OpenGL { getProjection :: [GLfloat] }
 
 initialize window width height = do
     glEnable GL_DEPTH_TEST
-    glFrontFace GL_CW
     glEnable GL_CULL_FACE
     
     swapInterval 1
@@ -19,14 +18,14 @@ initialize window width height = do
 
 identityLH = take 16 . cycle $ [1,0,0,0,0]
 
-perspectiveFovLH fieldOfView aspect near depth = let
+perspectiveFovLH fieldOfView aspect near far = let
     rtfov = recip . tan . (*0.5) $ fieldOfView
-    denom = depth - near
+    denom = far - near
     in
     [ rtfov*recip aspect, 0, 0, 0
     , 0, rtfov, 0, 0
-    , 0, 0, (depth+near)/denom, 1
-    , 0, 0, negate $ depth*near/denom, 0 ]
+    , 0, 0, far/denom, 1
+    , 0, 0, negate $ far*near/denom, 0 ]
 
 yRotationLH angle =
     [ cos angle, 0, -sin angle, 0

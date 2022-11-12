@@ -9,7 +9,5 @@ uniform sampler2D ture;
 
 void main()
 {
-	vec4 texclr = texture(ture, tex);
-	
-	color = clr*texclr;
+	color = clr*texture(ture, tex);
 }

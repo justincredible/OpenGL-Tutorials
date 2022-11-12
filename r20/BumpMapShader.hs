@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data BumpMapShader = BumpMapShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -22,7 +21,7 @@ data BumpMapShader = BumpMapShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/bumpmap.vert" "glsl/bumpmap.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/bumpmap.vert", "glsl/bumpmap.frag"]
     
     if not success
     then return (False, Nothing)
@@ -36,19 +35,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,direction,diffuse,texlocn]
         return (success, Just $ BumpMapShader
-            program vShader fShader world view projection direction diffuse texlocn)
+            program shaders world view projection direction diffuse texlocn)
 
 instance Shutdown BumpMapShader where
-    shutdown (BumpMapShader program vShader fShader _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (BumpMapShader program shaders _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (BumpMapShader program _ _ world view projection direction diffuse texlocn)
+parameters (BumpMapShader program _ world view projection direction diffuse texlocn)
     worldMatrix viewMatrix projectionMatrix lightdir lightdif texunit = do
         glUseProgram program
 

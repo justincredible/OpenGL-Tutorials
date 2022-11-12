@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data LightMapShader = LightMapShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -20,7 +19,7 @@ data LightMapShader = LightMapShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/lightmap.vert" "glsl/lightmap.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/lightmap.vert", "glsl/lightmap.frag"]
     
     if not success
     then return (False, Nothing)
@@ -32,19 +31,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,texlocn]
         return (success, Just $ LightMapShader
-            program vShader fShader world view projection texlocn)
+            program shaders world view projection texlocn)
 
 instance Shutdown LightMapShader where
-    shutdown (LightMapShader program vShader fShader _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (LightMapShader program shaders _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (LightMapShader program _ _ world view projection texlocn)
+parameters (LightMapShader program _ world view projection texlocn)
     worldMatrix viewMatrix projectionMatrix texunit = do
         glUseProgram program
 

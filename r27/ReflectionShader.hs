@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data ReflectionShader = ReflectionShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -22,7 +21,7 @@ data ReflectionShader = ReflectionShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/reflection.vert" "glsl/reflection.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/reflection.vert", "glsl/reflection.frag"]
     
     if not success
     then return (False, Nothing)
@@ -39,19 +38,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,reflection,texlocn,reflect]
         return (success, Just $ ReflectionShader
-            program vShader fShader world view projection reflection texlocn reflect)
+            program shaders world view projection reflection texlocn reflect)
 
 instance Shutdown ReflectionShader where
-    shutdown (ReflectionShader program vShader fShader _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (ReflectionShader program shaders _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (ReflectionShader program _ _ world view projection reflection texlocn reflectex)
+parameters (ReflectionShader program _ world view projection reflection texlocn reflectex)
     worldMx viewMx projectionMx reflectionMx texunit reflect = do
         glUseProgram program
 

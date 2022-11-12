@@ -25,6 +25,7 @@ initialize window width height = do
     opengl <- OpenGL.initialize window width height
     camera <- fmap snd . join . fmap render $ Camera.initialize
     (success,text2D) <- Text2D.initialize width height (getView camera)
+    
     return (success, Just $ Frame window opengl camera text2D)
 
 instance Render Frame where

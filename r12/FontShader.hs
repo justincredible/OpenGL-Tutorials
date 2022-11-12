@@ -14,8 +14,7 @@ import ShaderCompilinker
 
 data FontShader = FontShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -24,36 +23,31 @@ data FontShader = FontShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/font.vert" "glsl/font.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/font.vert", "glsl/font.frag"]
     
     if not success
     then return (False, Nothing)
     else do
-        withArray (map castCharToCChar "position") $ glBindAttribLocation program 0
-        withArray (map castCharToCChar "texcoord") $ glBindAttribLocation program 1
-        
         world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
         view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
         projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
-        texlocn <- withArray0 0 (map castCharToCChar "tex0") $ glGetUniformLocation program
+        texture <- withArray0 0 (map castCharToCChar "ture") $ glGetUniformLocation program
         pxlclr <- withArray0 0 (map castCharToCChar "pxlclr") $ glGetUniformLocation program
         
-        let success = all (/= -1) [world,view,projection,texlocn,pxlclr]
+        let success = all (/= -1) [world,view,projection,texture,pxlclr]
         return (success, Just $ FontShader
-            program vShader fShader world view projection texlocn pxlclr)
+            program shaders world view projection texture pxlclr)
 
 instance Shutdown FontShader where
-    shutdown (FontShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (FontShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (FontShader program _ _ world view projection texlocn pxlclr)
-    worldMatrix viewMatrix projectionMatrix texunit pixclr = do
+parameters (FontShader program _ world view projection texture pxlclr)
+    worldMatrix viewMatrix projectionMatrix unit pixClr = do
         glUseProgram program
 
         withArray worldMatrix $ glUniformMatrix4fv world 1 GL_FALSE
@@ -62,6 +56,6 @@ parameters (FontShader program _ _ world view projection texlocn pxlclr)
 
         withArray projectionMatrix $ glUniformMatrix4fv projection 1 GL_FALSE
 
-        glUniform1i texlocn texunit
+        glUniform1i texture unit
         
-        withArray pixclr $ glUniform4fv pxlclr 1
+        withArray pixClr $ glUniform4fv pxlclr 1

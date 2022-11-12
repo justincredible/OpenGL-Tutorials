@@ -28,10 +28,8 @@ void main()
 	
 	vec2 noisecrd = finalnoise.xy*perturb + tex;
 	
-	vec4 fireclr = texture(fire, noisecrd);
 	vec4 alphaclr = texture(alpha, noisecrd);
 	
-	fireclr.a = alphaclr.x;
-	
-	color = fireclr;
+	color = texture(fire, noisecrd);
+	color.a = alphaclr.x;
 }

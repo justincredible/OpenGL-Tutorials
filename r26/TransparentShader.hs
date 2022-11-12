@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data TransparentShader = TransparentShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,14 +20,11 @@ data TransparentShader = TransparentShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/transparent.vert" "glsl/transparent.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/transparent.vert", "glsl/transparent.frag"]
     
     if not success
     then return (False, Nothing)
     else do
-        withArray (map castCharToCChar "position") $ glBindAttribLocation program 0
-        withArray (map castCharToCChar "texcoord") $ glBindAttribLocation program 1
-        
         world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
         view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
         projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
@@ -37,19 +33,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,texlocn,blendamt]
         return (success, Just $ TransparentShader
-            program vShader fShader world view projection texlocn blendamt)
+            program shaders world view projection texlocn blendamt)
 
 instance Shutdown TransparentShader where
-    shutdown (TransparentShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (TransparentShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (TransparentShader program _ _ world view projection texlocn blendamt)
+parameters (TransparentShader program _ world view projection texlocn blendamt)
     worldMatrix viewMatrix projectionMatrix texunit blend = do
         glUseProgram program
 

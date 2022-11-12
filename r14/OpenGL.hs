@@ -25,7 +25,7 @@ initialize window width height = do
     glViewport 0 0 (fromIntegral width) (fromIntegral height)
     
     return $ OpenGL
-        (orthoGraphicLH (fromIntegral width) (fromIntegral height) 0.1 1000)
+        (orthographicLH (fromIntegral width) (fromIntegral height) 0.1 1000)
         (perspectiveFovLH 0.785398163 (fromIntegral width/fromIntegral height) 0.1 1000)
 
 beginScene red green blue alpha = do

@@ -1,10 +1,10 @@
 #version 460 core
 
-layout(location = 0)in vec3 pos;
-layout(location = 1)in vec2 tex;
-layout(location = 2)in vec3 nml;
+layout(location=0)in vec3 position;
+layout(location=1)in vec2 texcoord;
+layout(location=2)in vec3 facenrml;
 
-out vec2 coord;
+out vec2 tex;
 out vec3 normal;
 
 uniform mat4 world;
@@ -13,11 +13,9 @@ uniform mat4 projection;
 
 void main()
 {
-	gl_Position = world*vec4(pos, 1.0);
-	gl_Position = view*gl_Position;
-	gl_Position = projection*gl_Position;
+	gl_Position = projection*view*world*vec4(position,1);
 	
-	coord = tex;
+	tex = texcoord;
 	
-	normal = normalize(mat3(world)*nml);
+	normal = normalize(mat3(world)*facenrml);
 }

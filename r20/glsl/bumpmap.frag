@@ -12,23 +12,14 @@ uniform vec3 direction;
 uniform vec4 diffuse;
 
 void main()
-{
-	vec4 texclr, bumpmap;
-	vec3 bumpnrm, lightdir;
-	float intensity;
+{	
+	vec4 bumpmap = texture(texas, vec3(tex,1))*2 - 1;
 	
-	texclr = texture(texas, vec3(tex,0));
+	vec3 bumpnrm = normalize(bumpmap.x*tng + bumpmap.y*btn + bumpmap.z*nrm);
 	
-	bumpmap = texture(texas, vec3(tex,1));
-	bumpmap = bumpmap*2-1;
-	
-	bumpnrm = normalize(bumpmap.x*tng + bumpmap.y*btn + bumpmap.z*nrm);
-	
-	lightdir = -direction;
-	
-	intensity = clamp(dot(bumpnrm,lightdir),0,1);
+	float intensity = clamp(dot(bumpnrm, -direction),0,1);
 	
 	color = clamp(diffuse*intensity,0,1);
 	
-	color *= texclr;
+	color *= texture(texas, vec3(tex,0));
 }

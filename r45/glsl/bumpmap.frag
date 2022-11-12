@@ -14,8 +14,6 @@ uniform vec4 diffuse;
 
 void main()
 {	
-	vec4 texclr = texture(ture, tex);
-	
 	vec4 bumpmap = 2*texture(nrmtex, tex) - 1;
 	
 	vec3 bumpnrm = normalize(bumpmap.x*tng + bumpmap.y*btn + bumpmap.z*nrm);
@@ -24,5 +22,5 @@ void main()
 	
 	color = clamp(diffuse*intensity,0,1);
 	
-	color *= texclr;
+	color *= texture(ture, tex);
 }

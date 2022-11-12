@@ -10,15 +10,14 @@ import ShaderCompilinker
 
 data DepthShader = DepthShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint }
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/depth.vert" "glsl/depth.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/depth.vert", "glsl/depth.frag"]
     
     if not success
     then return (False, Nothing)
@@ -28,19 +27,17 @@ initialize = do
         projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
 
         let success = all (/= -1) [world,view,projection]
-        return (success, Just $ DepthShader program vShader fShader world view projection)
+        return (success, Just $ DepthShader program shaders world view projection)
 
 instance Shutdown DepthShader where
-    shutdown (DepthShader program vShader fShader _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (DepthShader program shaders _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (DepthShader program _ _ world view projection)
+parameters (DepthShader program _ world view projection)
     worldMx viewMx projectionMx = do
         glUseProgram program
 

@@ -8,13 +8,9 @@ uniform sampler2DArray texas;
 
 void main()
 {
-	vec4 texclr1, texclr2, alphaval, blendclr;
+	vec4 texclr1 = texture(texas, vec3(tex,0));
+	vec4 texclr2 = texture(texas, vec3(tex,1));
+	vec4 alphaval = texture(texas, vec3(tex,2));
 	
-	texclr1 = texture(texas, vec3(tex,0));
-	texclr2 = texture(texas, vec3(tex,1));
-	alphaval = texture(texas, vec3(tex,2));
-	
-	blendclr = clamp(alphaval*texclr1 + (1-alphaval)*texclr2, 0, 1);
-	
-	color = blendclr;
+	color = clamp(alphaval*texclr1 + (1-alphaval)*texclr2,0,1);
 }

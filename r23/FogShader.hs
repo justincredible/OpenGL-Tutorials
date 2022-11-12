@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data FogShader = FogShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,7 +20,7 @@ data FogShader = FogShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/fog.vert" "glsl/fog.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/fog.vert", "glsl/fog.frag"]
     
     if not success
     then return (False, Nothing)
@@ -30,23 +29,21 @@ initialize = do
         view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
         projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
         range <- withArray0 0 (map castCharToCChar "range") $ glGetUniformLocation program
-        texlocn <- withArray0 0 (map castCharToCChar "image") $ glGetUniformLocation program
+        texlocn <- withArray0 0 (map castCharToCChar "ture") $ glGetUniformLocation program
         
         let success = all (/= -1) [world,view,projection,range,texlocn]
         return (success, Just $ FogShader
-            program vShader fShader world view projection range texlocn)
+            program shaders world view projection range texlocn)
 
 instance Shutdown FogShader where
-    shutdown (FogShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (FogShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (FogShader program _ _ world view projection range texlocn)
+parameters (FogShader program _ world view projection range texlocn)
     worldMatrix viewMatrix projectionMatrix fogrng texunit = do
         glUseProgram program
 

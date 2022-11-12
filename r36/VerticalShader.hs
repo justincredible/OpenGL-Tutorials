@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data VerticalShader = VerticalShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -21,7 +20,7 @@ data VerticalShader = VerticalShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/vertical.vert" "glsl/blur.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/vertical.vert", "glsl/blur.frag"]
     
     if not success
     then return (False, Nothing)
@@ -34,19 +33,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,height,texlocn]
         return (success, Just $ VerticalShader
-            program vShader fShader world view projection height texlocn)
+            program shaders world view projection height texlocn)
 
 instance Shutdown VerticalShader where
-    shutdown (VerticalShader program vShader fShader _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (VerticalShader program shaders _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (VerticalShader program _ _ world view projection height texlocn)
+parameters (VerticalShader program _ world view projection height texlocn)
     worldMatrix viewMatrix projectionMatrix screen texunit = do
         glUseProgram program
 

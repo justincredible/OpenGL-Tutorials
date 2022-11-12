@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data TextureShader = TextureShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -20,48 +19,34 @@ data TextureShader = TextureShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/texture.vert" "glsl/texture.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/texture.vert", "glsl/texture.frag"]
     
     if not success
     then return (False, Nothing)
     else do
-        withArray (map castCharToCChar "position") $ \ptr ->
-            glBindAttribLocation program 0 ptr
-        withArray (map castCharToCChar "texcoord") $ \ptr ->
-            glBindAttribLocation program 1 ptr
-        
-        world <- withArray (map castCharToCChar "world") $ \ptr ->
-            glGetUniformLocation program ptr
-        view <- withArray (map castCharToCChar "view") $ \ptr ->
-            glGetUniformLocation program ptr
-        projection <- withArray (map castCharToCChar "projection") $ \ptr ->
-            glGetUniformLocation program ptr
-        tex0 <- withArray (map castCharToCChar "tex0") $ \ptr ->
-            glGetUniformLocation program ptr
+        world <- withArray0 0 (map castCharToCChar "world") $ glGetUniformLocation program
+        view <- withArray0 0 (map castCharToCChar "view") $ glGetUniformLocation program
+        projection <- withArray0 0 (map castCharToCChar "projection") $ glGetUniformLocation program
+        texture <- withArray0 0 (map castCharToCChar "ture") $ glGetUniformLocation program
 
-        let success = world /= -1 && view /= -1 && projection /= -1 && tex0 /= -1
-        return (success, Just $ TextureShader program vShader fShader world view projection tex0)
+        let success = world /= -1 && view /= -1 && projection /= -1 && texture /= -1
+        return (success, Just $ TextureShader program shaders world view projection texture)
 
 instance Shutdown TextureShader where
-    shutdown (TextureShader program vShader fShader _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (TextureShader program shaders _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (TextureShader program _ _ world view projection texture) worldMatrix viewMatrix projectionMatrix texUnit = do    
+parameters (TextureShader program _ world view projection texture) worldMatrix viewMatrix projectionMatrix texUnit = do    
     glUseProgram program
 
-    withArray worldMatrix $ \ptr ->
-        glUniformMatrix4fv world 1 GL_FALSE ptr
+    withArray worldMatrix $ glUniformMatrix4fv world 1 GL_FALSE
 
-    withArray viewMatrix $ \ptr ->
-        glUniformMatrix4fv view 1 GL_FALSE ptr
+    withArray viewMatrix $ glUniformMatrix4fv view 1 GL_FALSE
 
-    withArray projectionMatrix $ \ptr ->
-        glUniformMatrix4fv projection 1 GL_FALSE ptr
+    withArray projectionMatrix $ glUniformMatrix4fv projection 1 GL_FALSE
 
     glUniform1i texture texUnit

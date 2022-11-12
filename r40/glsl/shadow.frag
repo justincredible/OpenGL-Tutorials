@@ -30,13 +30,9 @@ void main()
 		{
 			float intensity = clamp(dot(normal, lightpos),0,1);
 			
-			color += diffuse*intensity;
-			
-			if (intensity > 0) color = clamp(color,0,1);
+			color = clamp(color + diffuse*intensity,0,1);
 		}
 	}
 	
-	vec4 texclr = texture(ture, tex);
-	
-	color *= texclr;
+	color *= texture(ture, tex);
 }

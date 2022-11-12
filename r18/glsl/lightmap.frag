@@ -8,12 +8,8 @@ uniform sampler2DArray texas;
 
 void main()
 {
-	vec4 texclr, lightclr, finalclr;
+	vec4 texclr = texture(texas, vec3(tex,0));
+	vec4 lightclr = texture(texas, vec3(tex,1));
 	
-	texclr = texture(texas, vec3(tex,0));
-	lightclr = texture(texas, vec3(tex,1));
-	
-	finalclr = texclr*lightclr;
-	
-	color = finalclr;
+	color = texclr*lightclr;
 }

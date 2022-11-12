@@ -9,7 +9,5 @@ uniform float textrans;
 
 void main()
 {
-	vec4 texclr = texture(ture, tex + vec2(textrans,0));
-	
-	color = texclr;
+	color = texture(ture, tex + vec2(textrans,0));
 }

@@ -16,32 +16,23 @@ uniform float power;
 
 void main()
 {
-	vec4 texclr, bumpmap, speclr, specintensity;
-	vec3 bumpnrm, lightdir, reflection;
-	float intensity;
+	vec4 bumpmap = texture(texas, vec3(tex,1))*2 - 1;
 	
-	texclr = texture(texas, vec3(tex,0));
+	vec3 bumpnrm = normalize(bumpmap.x*tng + bumpmap.y*btn + bumpmap.z*nrm);
 	
-	bumpmap = texture(texas, vec3(tex,1));
-	bumpmap = bumpmap*2-1;
-	
-	bumpnrm = normalize(bumpmap.x*tng + bumpmap.y*btn + bumpmap.z*nrm);
-	
-	lightdir = -direction;
-	
-	intensity = clamp(dot(bumpnrm,lightdir),0,1);
+	float intensity = clamp(dot(bumpnrm, -direction),0,1);
 	
 	color = clamp(diffuse*intensity,0,1);
 	
-	color *= texclr;
+	color *= texture(texas, vec3(tex,0));
 	
 	if (intensity > 0)
 	{
-		speclr = texture(texas, vec3(tex,2));
+		vec4 speclr = texture(texas, vec3(tex,2));
 		
-		reflection = normalize(2*intensity*bumpnrm - lightdir);
+		vec3 reflection = normalize(2*intensity*bumpnrm + direction);
 		
-		specintensity = speclr*pow(clamp(dot(reflection,viewdir),0,1), power);
+		vec4 specintensity = speclr*pow(clamp(dot(reflection, viewdir),0,1), power);
 		
 		color = clamp(color + specintensity*specular,0,1);
 	}

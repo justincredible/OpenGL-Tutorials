@@ -13,7 +13,5 @@ void main()
 	
 	if (glowclr.r == 0 && glowclr.g == 0 && glowclr.b == 0) discard;
 	
-	vec4 texclr = texture(ture, tex);
-	
-	color = texclr;
+	color = texture(ture, tex);
 }

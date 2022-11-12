@@ -18,20 +18,11 @@ void main()
 	
 	float intensity = clamp(dot(normal, lightpos),0,1);
 	
-	if (intensity > 0)
-	{
-		color += diffuse*intensity;
-		
-		color = clamp(color,0,1);
-	}
+	color = clamp(color + diffuse*intensity,0,1);
 	
-	vec4 texclr = texture(ture, tex);
-	
-	color *= texclr;
+	color *= texture(ture, tex);
 	
 	vec2 projectex = vec2(viewpos.x/viewpos.w/2 + 0.5,viewpos.y/viewpos.w/2 + 0.5);
 	
-	float shadowval = texture(shadow, projectex).r;
-	
-	color *= shadowval;
+	color *= texture(shadow, projectex).r;
 }

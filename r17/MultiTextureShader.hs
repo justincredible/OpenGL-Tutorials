@@ -11,8 +11,7 @@ import ShaderCompilinker
 
 data MultiTextureShader = MultiTextureShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -20,7 +19,7 @@ data MultiTextureShader = MultiTextureShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/multitexture.vert" "glsl/multitexture.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/multitexture.vert", "glsl/multitexture.frag"]
     
     if not success
     then return (False, Nothing)
@@ -32,19 +31,17 @@ initialize = do
         
         let success = all (/= -1) [world,view,projection,texlocn]
         return (success, Just $ MultiTextureShader
-            program vShader fShader world view projection texlocn)
+            program shaders world view projection texlocn)
 
 instance Shutdown MultiTextureShader where
-    shutdown (MultiTextureShader program vShader fShader _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (MultiTextureShader program shaders _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (MultiTextureShader program _ _ world view projection texlocn)
+parameters (MultiTextureShader program _ world view projection texlocn)
     worldMatrix viewMatrix projectionMatrix texunit = do
         glUseProgram program
 

@@ -10,8 +10,7 @@ import ShaderCompilinker
 
 data LightShader = LightShader {
     getProgram :: GLuint,
-    getVertexShader :: GLuint,
-    getFragmentShader :: GLuint,
+    getShaders :: [GLuint],
     getWorldLocation :: GLint,
     getViewLocation :: GLint,
     getProjectionLocation :: GLint,
@@ -22,7 +21,7 @@ data LightShader = LightShader {
     deriving (Eq, Show)
 
 initialize = do
-    (success, program, vShader, fShader) <- compileAndLink "glsl/light.vert" "glsl/light.frag"
+    (success, program, shaders) <- compileAndLink ["glsl/light.vert", "glsl/light.frag"]
 
     if not success
     then return (False, Nothing)
@@ -37,19 +36,17 @@ initialize = do
 
         let success = all (/= -1) [world,view,projection,texture,direction,ambient,diffuse]
         return (success, Just $
-            LightShader program vShader fShader world view projection texture direction ambient diffuse)
+            LightShader program shaders world view projection texture direction ambient diffuse)
 
 instance Shutdown LightShader where
-    shutdown (LightShader program vShader fShader _ _ _ _ _ _ _) = do
-        glDetachShader program vShader
-        glDetachShader program fShader
+    shutdown (LightShader program shaders _ _ _ _ _ _ _) = do
+        sequence_ $ map (glDetachShader program) shaders
         
-        glDeleteShader vShader
-        glDeleteShader fShader
+        sequence_ $ map glDeleteShader shaders
         
         glDeleteProgram program
 
-parameters (LightShader program _ _ world view projection texture direction ambient diffuse)
+parameters (LightShader program _ world view projection texture direction ambient diffuse)
     worldMx viewMx projectionMx texunit lightDir ambientClr diffuseClr = do
         glUseProgram program
 

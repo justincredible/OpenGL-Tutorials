@@ -31,8 +31,8 @@ initialize window width height near far = do
     glViewport 0 0 (fromIntegral width) (fromIntegral height)
     
     return $ OpenGL
-        (orthoGraphicLH (fromIntegral width) (fromIntegral height) near far)
-        (orthoGraphicLH (fromIntegral $ quot width 2) (fromIntegral $ quot height 2) (near/10) far)
+        (orthographicLH (fromIntegral width) (fromIntegral height) near far)
+        (orthographicLH (fromIntegral $ quot width 2) (fromIntegral $ quot height 2) (near/10) far)
         (perspectiveFovLH (pi/4) (fromIntegral width/fromIntegral height) near far)
 
 beginScene red green blue alpha = do

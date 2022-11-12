@@ -11,4 +11,4 @@ data Light = Light {
     deriving (Eq, Show)
 
 initialize :: IO Light
-initialize = return $ Light [0,0,-1] [0.15,0.15,0.15,1] [1,1,1,1] [1,1,1,1] 32
+initialize = return $ Light [0,0,1] [0.15,0.15,0.15,1] [1,1,1,1] [1,1,1,1] 32

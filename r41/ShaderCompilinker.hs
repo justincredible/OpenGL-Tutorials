@@ -21,7 +21,8 @@ compileAndLink shaderFiles = do
     
     let types = case length shaderFiles of
             4 -> [GL_VERTEX_SHADER,GL_FRAGMENT_SHADER,GL_TESS_CONTROL_SHADER,GL_TESS_EVALUATION_SHADER]
-            _ -> [GL_VERTEX_SHADER,GL_FRAGMENT_SHADER]
+            2 -> [GL_VERTEX_SHADER,GL_FRAGMENT_SHADER]
+            _ -> []
     
     exists <- doesPathExist "shader-error.txt"
     when exists $ writeFile "shader-error.txt" ""

@@ -28,10 +28,10 @@ initialize width height = do
         indices = [0,1,2,2,1,3] :: [GLubyte]
         numVertices = 4
         vertices = [
-            left,top,0,0,0,
-            left,bottom,0,0,1,
-            right,top,0,1,0,
-            right,bottom,0,1,1 ] :: [GLfloat]
+            left,top,0,0,1,
+            left,bottom,0,0,0,
+            right,top,0,1,1,
+            right,bottom,0,1,0 ] :: [GLfloat]
     
     vertexArray <- alloca $ (>>) . glGenVertexArrays 1 <*> peek
         
@@ -49,7 +49,7 @@ initialize width height = do
     glEnableVertexAttribArray 1
     
     glVertexAttribPointer 0 3 GL_FLOAT GL_FALSE (fromIntegral vertexSize) nullPtr
-    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf(GL_FLOAT))
+    glVertexAttribPointer 1 2 GL_FLOAT GL_FALSE (fromIntegral vertexSize) $ bufferOffset (3*sizeOf (0::GLfloat))
     
     indexBuffer <- alloca $ (>>) . glGenBuffers 1 <*> peek
     

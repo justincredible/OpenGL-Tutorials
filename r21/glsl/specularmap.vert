@@ -1,10 +1,10 @@
 #version 460 core
 
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 texcoord;
-layout(location = 2) in vec3 normal;
-layout(location = 3) in vec3 tangent;
-layout(location = 4) in vec3 bitangent;
+layout(location=0)in vec3 position;
+layout(location=1)in vec2 texcoord;
+layout(location=2)in vec3 normal;
+layout(location=3)in vec3 tangent;
+layout(location=4)in vec3 bitangent;
 
 out vec2 tex;
 out vec3 nrm;
@@ -19,11 +19,8 @@ uniform vec3 camerapos;
 
 void main()
 {
-	vec4 worldpos;
-	
-	worldpos = world*vec4(position, 1.0f);
-	gl_Position = view*worldpos;
-	gl_Position = projection*gl_Position;
+	vec4 worldpos = world*vec4(position,1);
+	gl_Position = projection*view*worldpos;
 	
 	tex = texcoord;
 	

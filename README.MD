@@ -1,5 +1,5 @@
 # Rastertek OpenGL
-- The tutorial series for OpenGL at [RasterTek](http://rastertek.com/tutgl40.html) written in Haskell.
+- The tutorial series for OpenGL at [RasterTek](https://rastertek.com/tutgl40.html) written in Haskell.
 - The tutorial series for DirectX 11 at [RasterTek](https://rastertek.com/tutdx11.html) written in OpenGL and Haskell.
 
 ## Windowing
@@ -25,3 +25,7 @@ The guest article from [LearnOpenGL](https://learnopengl.com/Guest-Articles/2021
 ## CPU usage
 
 The implementation using the PDH library seems simple enough, but I had great difficulty trying to create bindings to it. I may revisit this at a later time, but if I was proficient with the FFI I would be using DirectX on Windows.
+
+## To Do
+
+Provide instructions to set up environment. This is mostly enumerating packages for a stack project, but setting up [OpenAL](https://hackage.haskell.org/package/OpenAL) requires additional work.

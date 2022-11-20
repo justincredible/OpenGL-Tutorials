@@ -233,7 +233,6 @@ impl VertexArray {
             self.gl.BindVertexArray(self.vertex_array);
 
             self.gl.DrawElements(gl::TRIANGLES, INDEX_COUNT as i32, gl::UNSIGNED_BYTE, ptr::null());
-            //self.gl.DrawArrays(gl::TRIANGLES, 0, VERTEX_COUNT as i32);
         }
     }
 }

@@ -105,14 +105,7 @@ mod gl {
                     self::STATIC_DRAW,
                 );
 
-                gl.VertexAttribPointer(
-                    0,
-                    3,
-                    self::FLOAT,
-                    self::FALSE,
-                    (6 * std::mem::size_of::<f32>()).try_into().unwrap(),
-                    std::ptr::null(),
-                );
+                gl.VertexAttribPointer(0, 3, self::FLOAT, self::FALSE, (6 * std::mem::size_of::<f32>()).try_into().unwrap(), std::ptr::null());
                 gl.EnableVertexAttribArray(0);
 
                 let offset = 3 * std::mem::size_of::<f32>();
@@ -127,11 +120,7 @@ mod gl {
                 gl.EnableVertexAttribArray(1);
             }
 
-            VertexArray {
-                gl,
-                vertex_array,
-                vertex_buffer,
-            }
+            VertexArray { gl, vertex_array, vertex_buffer }
         }
 
         pub fn draw(&self) {

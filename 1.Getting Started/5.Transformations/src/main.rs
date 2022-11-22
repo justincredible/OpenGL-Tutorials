@@ -45,8 +45,7 @@ fn main() {
         texture1.bind_active(gl::TEXTURE0);
         texture2.bind_active(gl::TEXTURE1);
 
-        let transform =
-            Mat4::translate(Vec3::new(0.5, -0.5, 0.0)) * Mat4::rotate(Quaternion::axis_angle(Vec3::new(0.0, 0.0, 1.0), glfw.get_time() as f32));
+        let transform = Mat4::translate(Vec3::new(0.5, -0.5, 0.0)) * Mat4::rotate(Quaternion::axis_angle(Vec3::new(0.0, 0.0, 1.0), glfw.get_time() as f32));
 
         program.apply();
         program.set_matrix("transform", transform);
@@ -259,17 +258,7 @@ impl Texture {
             println!("Failed to load texture");
         } else {
             unsafe {
-                gl.TexImage2D(
-                    gl::TEXTURE_2D,
-                    0,
-                    format as i32,
-                    image.width,
-                    image.height,
-                    0,
-                    format,
-                    gl::UNSIGNED_BYTE,
-                    image.data.cast(),
-                );
+                gl.TexImage2D(gl::TEXTURE_2D, 0, format as i32, image.width, image.height, 0, format, gl::UNSIGNED_BYTE, image.data.cast());
                 gl.GenerateMipmap(gl::TEXTURE_2D);
             }
         }

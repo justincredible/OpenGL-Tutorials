@@ -265,17 +265,7 @@ impl Texture {
             println!("Failed to load texture");
         } else {
             unsafe {
-                gl.TexImage2D(
-                    gl::TEXTURE_2D,
-                    0,
-                    format as i32,
-                    image.width,
-                    image.height,
-                    0,
-                    format,
-                    gl::UNSIGNED_BYTE,
-                    image.data.cast(),
-                );
+                gl.TexImage2D(gl::TEXTURE_2D, 0, format as i32, image.width, image.height, 0, format, gl::UNSIGNED_BYTE, image.data.cast());
                 gl.GenerateMipmap(gl::TEXTURE_2D);
             }
         }

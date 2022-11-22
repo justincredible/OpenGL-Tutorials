@@ -214,21 +214,9 @@ mod gl {
                 );
 
                 gl.BindBuffer(self::ELEMENT_ARRAY_BUFFER, index_buffer);
-                gl.BufferData(
-                    self::ELEMENT_ARRAY_BUFFER,
-                    NUM_INDICES.try_into().unwrap(),
-                    INDICES.as_ptr().cast(),
-                    self::STATIC_DRAW,
-                );
+                gl.BufferData(self::ELEMENT_ARRAY_BUFFER, NUM_INDICES.try_into().unwrap(), INDICES.as_ptr().cast(), self::STATIC_DRAW);
 
-                gl.VertexAttribPointer(
-                    0,
-                    3,
-                    self::FLOAT,
-                    self::FALSE,
-                    (3 * std::mem::size_of::<f32>()).try_into().unwrap(),
-                    std::ptr::null(),
-                );
+                gl.VertexAttribPointer(0, 3, self::FLOAT, self::FALSE, (3 * std::mem::size_of::<f32>()).try_into().unwrap(), std::ptr::null());
                 gl.EnableVertexAttribArray(0);
 
                 gl.BindBuffer(self::ARRAY_BUFFER, 0);

@@ -421,7 +421,7 @@ impl Drop for Framebuffer {
 
         unsafe {
             gl.DeleteFramebuffers(1, &self.framebuffer);
-            gl.DeleteTextures(2, self.textures.as_ptr());
+            gl.DeleteTextures(FB_MAX_TEXAS, self.textures.as_ptr());
             gl.DeleteRenderbuffers(1, &self.rbo);
         }
     }

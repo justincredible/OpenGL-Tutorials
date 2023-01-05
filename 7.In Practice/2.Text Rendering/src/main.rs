@@ -52,7 +52,7 @@ fn main() {
 
     let projection = Mat4::orthographic_opengl(0.0, SCR_WIDTH as f32, 0.0, SCR_HEIGHT as f32, 0.0, 0.1);
     shader.apply();
-    shader.set_mat4("projection", projection /*look_at(Vec3::new(0.0, 0.0, 3.0), Vec3::zero(), Vec3::new(0.0, 1.0, 0.0))*/);
+    shader.set_mat4("projection", projection);
 
     let mut characters = HashMap::<char, Character>::new();
 

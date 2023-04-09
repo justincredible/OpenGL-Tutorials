@@ -1,4 +1,2 @@
-# OpenGL Tutorial
-The [tutorial series for OpenGL](http://www.opengl-tutorial.org/) written in Haskell.
-
-[deeper dive](https://learnopengl.com/)
+# OpenGL Tutorials
+Transliterated OpenGL Tutorials.

@@ -8,16 +8,16 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Storable
 import Foreign.Ptr
-import Sound.AL
-import Sound.ALC
+import Sound.OpenAL.FFI.AL
+import Sound.OpenAL.FFI.ALC
 
 import Flow.Shutdown
 
 data Audio = Audio {
-    getDevice :: Ptr ALCdevice,
-    getContext :: Ptr ALvoid,
-    getBuffer :: ALuint,
-    getSource :: ALuint }
+    getDevice :: Device,
+    getContext :: Context,
+    getBuffer :: Buffer,
+    getSource :: Source }
     deriving (Eq,Show)
 
 --https://indiegamedev.net/2020/02/15/the-complete-guide-to-openal-with-c-part-1-playing-a-sound/
@@ -25,36 +25,35 @@ initialize file = do
     device <- alcOpenDevice nullPtr
     context <- alcCreateContext device nullPtr
     alcMakeContextCurrent context
-    {-withArray [0,0,4] $ alListenerfv al_POSITION
-    withArray [0,0,0] $ alListenerfv al_VELOCITY
-    withArray [0,0,1,0,1,0] $ alListenerfv al_ORIENTATION-}
     
     (success,audata,(format,freq,size)) <- loadWave file
     buffer <- alloca $ (>>) . alGenBuffers 1 <*> peek
-    withArray audata $ \ptr -> alBufferData buffer format ptr size freq
+    withArray audata $ \ptr -> alBufferData buffer format (castPtr ptr) size freq
     source <- alloca $ (>>) . alGenSources 1 <*> peek
     
-    alSourcef source al_PITCH 1
-    alSourcef source al_GAIN 1
-    withArray [-2,0,0] $ alSourcefv source al_POSITION
-    withArray [0,0,0] $ alSourcefv source al_VELOCITY
-    alSourcei source al_LOOPING al_FALSE
-    alSourcei source al_BUFFER (fromIntegral buffer)
+    withArray [1] $ alSourcefv source PITCH
+    withArray [1] $ alSourcefv source GAIN
+    withArray [-2,0,0] $ alSourcefv source POSITION
+    withArray [0,0,0] $ alSourcefv source VELOCITY
+    alSourcei source LOOPING 0
+    let (Buffer bufId) = buffer
+    alSourcei source BUFFER (fromIntegral bufId)
     
-    alSourcePlay source
+    with source $ alSourcePlayv 1
     
     return (True, Audio device context buffer source)
 
 instance Shutdown Audio where
     shutdown audio = do
-        state <- alloca $ (>>) . alGetSourcei (getSource audio) al_SOURCE_STATE <*> peek
-        when (state == al_PLAYING) $ alSourceStop (getSource audio)
+        state <- alloca $ (>>) . alGetSourceiv (getSource audio) SOURCE_STATE <*> peek
+        when (state == PLAYING) $ with (getSource audio) (alSourceStopv 1)
         
         with (getSource audio) $ alDeleteSources 1
         with (getBuffer audio) $ alDeleteBuffers 1
-        alcMakeContextCurrent nullPtr
+        alcMakeContextCurrent (Context nullPtr)
         alcDestroyContext (getContext audio)
         alcCloseDevice (getDevice audio)
+        return ()
 
 loadWaveHeader header
     | BS.length header /= 44 = putStrLn "Not enough header data." >> return (False,(0,0,0))
@@ -65,10 +64,10 @@ loadWaveHeader header
         let samplerate = readIntegral 4 24 header
             size = readIntegral 4 40 header
             format = case (readIntegral 2 22 header,readIntegral 2 34 header) of
-                (1,8) -> al_FORMAT_MONO8
-                (1,16) -> al_FORMAT_MONO16
-                (2,8) -> al_FORMAT_STEREO8
-                (2,16) -> al_FORMAT_STEREO16
+                (1,8) -> FORMAT_MONO8
+                (1,16) -> FORMAT_MONO16
+                (2,8) -> FORMAT_STEREO8
+                (2,16) -> FORMAT_STEREO16
                 _ -> undefined
             
         return (True,(format,fromIntegral samplerate,fromIntegral size))

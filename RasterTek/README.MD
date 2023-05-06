@@ -45,4 +45,4 @@ The implementation using the PDH library seems simple enough, but I had great di
 
 ## Frustum Culling
 
-Culling can happen to visible spheres in surprising ways. Something was mixed up in translation.
+Culling can happen to visible spheres in surprising ways. Something went amiss in translation.

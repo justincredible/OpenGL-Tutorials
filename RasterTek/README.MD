@@ -1,6 +1,7 @@
 # Rastertek OpenGL
 
 Ri: The tutorial series for DirectX 11 at [RasterTek](https://rastertek.com/tutdx11.html) written in OpenGL and Haskell.
+
 Ti: The tutorial series for OpenGL at [RasterTek](https://rastertek.com/tutgl40.html) written in Haskell.
 
 These tutorials can be run via [Stack](https://docs.haskellstack.org/).
